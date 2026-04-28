@@ -1,19 +1,43 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
-group = 'org.example'
+group = 'ru.nsu.ccfit.Tanya'
 version = '1.0-SNAPSHOT'
+
+// Use Java 23 toolchain — Gradle will auto-download it if needed
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(23)
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+    // Log4j 1.2 as required by the assignment
+    implementation 'log4j:log4j:1.2.17'
+
+    // JUnit 4 for unit tests
+    testImplementation 'junit:junit:4.13.2'
 }
 
-test {
-    useJUnitPlatform()
+application {
+    mainClass = 'ru.nsu.ccfit.Tanya.factory.Main'
+    // Log4j 1.2 needs this on newer JDKs due to the module system
+    applicationDefaultJvmArgs = [
+            '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED'
+    ]
+}
+
+// Apply the same JVM args when running tests
+tasks.withType(Test).configureEach {
+    jvmArgs '--add-opens=java.base/java.lang=ALL-UNNAMED',
+            '--add-opens=java.base/java.util=ALL-UNNAMED'
+    // Show test output in the console while running
+    testLogging { events 'passed', 'failed', 'skipped' }
 }
